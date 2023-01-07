@@ -25,7 +25,8 @@ short tempoAlimentadorLigado[3] = {5,5,5}; //Timer1, Timer2, Manual
 short dadosTimer[] = {0,0,0,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTimer2
 
 //Data e Hora do RTC
-short dadosRTC[] = {0,0,1,1,2023}; //Hora, Minuto, Dia, Mes, Ano
+//short dadosRTC[] = {0,0,1,1,2023}; //Hora, Minuto, Dia, Mes, Ano
+short dadosRTC[] = {0,0}; //Hora, Minuto
 
 ////////////////////////////////////////////////////////////////
 
@@ -56,9 +57,9 @@ bool CheckConfigRelogioAccess = false;
 String ConfigRelogioOptions[] = { 
   "Definir Hora  ",
   "Definir Min   ",
-  "Definir Dia   ",
+/*  "Definir Dia   ",
   "Definir Mes   ",
-  "Definir Ano   ",
+  "Definir Ano   ",*/
   "Voltar        "
 };
 
@@ -124,7 +125,7 @@ void loop(){
   }
 }
 
-void ExecAlimentar(int tempoLigado){
+void ExecAlimentar(short tempoLigado){
   servo_9.write(0); //Reseta Servo
   
   tone(BuzzerPin, 495, 500);
@@ -154,7 +155,6 @@ void ExecAlimentar(int tempoLigado){
   tone(BuzzerPin, 495, 250);
   delay(500);
   tone(BuzzerPin, 495, 250);
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,15 +176,15 @@ void ProcessaMenu(){
           break;
         case 2:
           //Reseta dados para padrão e salva na EEPROM
-          ResetaMemoria();
+          //ResetaMemoria();
           break;
         case 3:
           //Le dados salvos na EEPROM
-          LeMemoria();
+          //LeMemoria();
           break;
         case 4:
           //Salva na EEPROM os horarios
-          GravaMemoria();
+          //GravaMemoria();
           break;
         default:
           break;
@@ -287,7 +287,7 @@ void ProcessaMenu(){
               case 1:
                 ImprimeVlrVariavel(&dadosRTC[1]);
                 break;
-              case 2:
+              /*case 2:
                 ImprimeVlrVariavel(&dadosRTC[2]);
                 break;
               case 3:
@@ -296,15 +296,15 @@ void ProcessaMenu(){
               case 4:
                 lcd_1.setCursor(11,1);
                 lcd_1.print(dadosRTC[4]);
-                break;
+                break;*/
             }
           }else if (digitalRead(BtnMenuSelect) == HIGH){
             switch(NavigateMenuIndex){
               case 0: //Define Hora
               case 1: //Define Minuto
-              case 2: //Define Dia
+              /*case 2: //Define Dia
               case 3: //Define Mes
-              case 4: //Define Ano
+              case 4: //Define Ano*/
                   if(!CheckEditandoItem){
                     CheckEditandoItem = true;
                     //Config Tempo em segundos que ficara ligado
@@ -332,7 +332,7 @@ void ProcessaMenu(){
                 LimitaVariaveis(&dadosRTC[1],0,59);
                 ImprimeVlrVariavel(&dadosRTC[1]);
                 break;
-              case 2: //Define Dia
+              /*case 2: //Define Dia
                 EditaItemMenu(&dadosRTC[2]);                
                 LimitaVariaveis(&dadosRTC[2],1,31);
                 ImprimeVlrVariavel(&dadosRTC[2]);
@@ -346,7 +346,7 @@ void ProcessaMenu(){
                 EditaItemMenu(&dadosRTC[4]);              
                 LimitaVariaveis(&dadosRTC[4],2023,2099);
                 lcd_1.setCursor(11,1);
-                lcd_1.print(dadosRTC[4]);
+                lcd_1.print(dadosRTC[4]);*/
                 break;
               default:
                 break;
