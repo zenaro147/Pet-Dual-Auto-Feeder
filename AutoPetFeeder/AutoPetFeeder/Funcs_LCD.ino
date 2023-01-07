@@ -1,0 +1,64 @@
+
+void NavegaMenu(String* elementsMenu, short QtdeElementos){     
+  if (digitalRead(BtnMenuDireita) == HIGH){
+    NavigateMenuIndex++;
+  }
+  if (digitalRead(BtnMenuEsquerda) == HIGH){
+    NavigateMenuIndex--;
+  }
+
+  //Define manualmente o Index caso ultrapasse os limites
+  if(NavigateMenuIndex > QtdeElementos-1){
+    NavigateMenuIndex = 0;
+  } else if (NavigateMenuIndex < 0){
+    NavigateMenuIndex = QtdeElementos-1;
+  }
+  
+  //Atualiza Texto no LCD
+  lcd_1.setCursor(1,1);
+  lcd_1.print(elementsMenu[NavigateMenuIndex]);
+}
+
+void AcessarMenu(bool* menuToAccess, String* elementsMenu){
+  NavigateMenuIndex = 0;
+  *menuToAccess = !*menuToAccess;
+          
+  //Atualiza Texto no LCD
+  lcd_1.setCursor(1,1);
+  lcd_1.print(elementsMenu[0]);
+}
+
+void EditaItemMenu(short* selectedVar){
+  short tmpVar = *selectedVar;
+  if (digitalRead(BtnMenuDireita) == HIGH){
+    tmpVar++;
+  }
+  if (digitalRead(BtnMenuEsquerda) == HIGH){
+    tmpVar--;
+  }
+  *selectedVar = tmpVar;    
+}
+
+void ImprimeVlrVariavel(short* selectedVar){
+  short tmpVar = *selectedVar;
+  lcd_1.setCursor(13,1);
+  if(tmpVar < 10){
+    lcd_1.print("0");
+    lcd_1.setCursor(14,1);
+  }
+  lcd_1.print(tmpVar);
+}
+
+void ImprimeSetasMenu(){
+  lcd_1.setCursor(0,1);
+  lcd_1.print("<");
+  lcd_1.setCursor(15,1);
+  lcd_1.print(">");
+}
+
+void ImprimeSinaisMenu(){
+  lcd_1.setCursor(0,1);
+  lcd_1.print("-");
+  lcd_1.setCursor(15,1);
+  lcd_1.print("+");
+}
