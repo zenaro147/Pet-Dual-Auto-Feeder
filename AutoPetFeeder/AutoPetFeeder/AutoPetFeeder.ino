@@ -10,30 +10,22 @@ Servo servo_9;
 int seconds = 0;
 Adafruit_LiquidCrystal lcd_1(0);
 
-//Variavel Inputs/Outputs
-#define ReleControl 12 //Pino de controle do Rele
-
-//Tempo em segundos que o motor ficará ligado jogando comida
-short tempoAlimentadorLigado[3] = {5,5,5}; //Timer1, Timer2, Manual
-
-//Hora e Minuto dos timers
-short horaTimer1 = 0;
-short minutoTimer1 = 0;
-short horaTimer2 = 0;
-short minutoTimer2 = 0;
-
-//Data e Hora do RTC
-short horaRTC = 0;
-short minutoRTC = 0;
-short diaRTC = 1;
-short mesRTC = 1;
-short anoRTC = 2023;
+//Pino de controle do Rele
+#define ReleControl 12 
 
 //Pino Buzzer
 #define BuzzerPin 11
 
 //Variavel para "travar" o Menu
 bool CheckEditandoItem = false;
+//Tempo em segundos que o motor ficará ligado jogando comida
+short tempoAlimentadorLigado[3] = {5,5,5}; //Timer1, Timer2, Manual
+
+//Hora e Minuto dos timers
+short dadosTimer[] = {0,0,0,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTimer2
+
+//Data e Hora do RTC
+short dadosRTC[] = {0,0,1,1,2023}; //Hora, Minuto, Dia, Mes, Ano
 
 ////////////////////////////////////////////////////////////////
 
@@ -80,7 +72,6 @@ String ProgHorarioSetOptions[] = {
   "Voltar        "
 };
 
-
 bool CheckAlimentarAgoraAccess = false;
 String ProgAlimentarAgoraOptions[] = { 
   "Tempo(s)      ",
@@ -125,13 +116,12 @@ void SetupServo(){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void loop()
-{  
+void loop(){  
   if (digitalRead(BtnMenuEsquerda) == HIGH || digitalRead(BtnMenuDireita) == HIGH || digitalRead(BtnMenuSelect) == HIGH){
     tone(BuzzerPin, 495, 10);
     ProcessaMenu();
     delay(250); 
-  }  
+  }
 }
 
 void ExecAlimentar(int tempoLigado){
@@ -150,7 +140,7 @@ void ExecAlimentar(int tempoLigado){
     delay(10);
   }
   
-  //Alimenta o segund0 pote
+  //Alimenta o segundo pote
   digitalWrite(ReleControl, HIGH);
   delay(tempoLigado*1000);  
   digitalWrite(ReleControl, LOW);
@@ -170,7 +160,6 @@ void ExecAlimentar(int tempoLigado){
 ////////////////////////////////////////////////////////////////////////////////
 // PROCESSAMENTO DA LOGICA DO MENU
 ////////////////////////////////////////////////////////////////////////////////
-
 void ProcessaMenu(){
   if(!CheckProgHorarioAccess && (!CheckProgHorarioSet1Access && !CheckProgHorarioSet2Access && !CheckConfigRelogioAccess) && !CheckAlimentarAgoraAccess){
     //Se verdadeiro, então usuário está no menu principal
@@ -187,12 +176,15 @@ void ProcessaMenu(){
           break;
         case 2:
           //Reseta dados para padrão e salva na EEPROM
+          ResetaMemoria();
           break;
         case 3:
           //Le dados salvos na EEPROM
+          LeMemoria();
           break;
         case 4:
           //Salva na EEPROM os horarios
+          GravaMemoria();
           break;
         default:
           break;
@@ -240,12 +232,7 @@ void ProcessaMenu(){
             switch(NavigateMenuIndex){
               case 0:
                 EditaItemMenu(&tempoAlimentadorLigado[2]);
-                if(tempoAlimentadorLigado[2] < 0){
-                  tempoAlimentadorLigado[2] = 0;
-                }
-                if(tempoAlimentadorLigado[2] > 60){
-                  tempoAlimentadorLigado[2] = 60;
-                }
+                LimitaVariaveis(&tempoAlimentadorLigado[2],0,60);
                 ImprimeVlrVariavel(&tempoAlimentadorLigado[2]);
                 break;
               default:
@@ -295,20 +282,20 @@ void ProcessaMenu(){
             //Imprime variáveis
             switch(NavigateMenuIndex){
               case 0:
-                ImprimeVlrVariavel(&horaRTC);
+                ImprimeVlrVariavel(&dadosRTC[0]);
                 break;
               case 1:
-                ImprimeVlrVariavel(&minutoRTC);
+                ImprimeVlrVariavel(&dadosRTC[1]);
                 break;
               case 2:
-                ImprimeVlrVariavel(&diaRTC);
+                ImprimeVlrVariavel(&dadosRTC[2]);
                 break;
               case 3:
-                ImprimeVlrVariavel(&mesRTC);
+                ImprimeVlrVariavel(&dadosRTC[3]);
                 break;
               case 4:
                 lcd_1.setCursor(11,1);
-                lcd_1.print(anoRTC);
+                lcd_1.print(dadosRTC[4]);
                 break;
             }
           }else if (digitalRead(BtnMenuSelect) == HIGH){
@@ -336,63 +323,30 @@ void ProcessaMenu(){
           if (digitalRead(BtnMenuDireita) == HIGH || digitalRead(BtnMenuEsquerda) == HIGH){
             switch(NavigateMenuIndex){
               case 0: //Define Hora
-                EditaItemMenu(&horaRTC);
-                if(horaRTC < 0){
-                  horaRTC = 0;
-                }
-                if(horaRTC > 59){
-                  horaRTC = 59;
-                }
-                ImprimeVlrVariavel(&horaRTC);
+                EditaItemMenu(&dadosRTC[0]);
+                LimitaVariaveis(&dadosRTC[0],0,23);
+                ImprimeVlrVariavel(&dadosRTC[0]);
                 break;
               case 1: //Define Minuto
-                EditaItemMenu(&minutoRTC);
-                if(minutoRTC < 0){
-                  minutoRTC = 0;
-                }
-                if(minutoRTC > 59){
-                  minutoRTC = 59;
-                }
-                ImprimeVlrVariavel(&minutoRTC);
+                EditaItemMenu(&dadosRTC[1]);
+                LimitaVariaveis(&dadosRTC[1],0,59);
+                ImprimeVlrVariavel(&dadosRTC[1]);
                 break;
               case 2: //Define Dia
-                EditaItemMenu(&diaRTC);
-                if(diaRTC < 1){
-                  diaRTC = 1;
-                }
-                if(diaRTC > 31){
-                  diaRTC = 31;
-                }
-                ImprimeVlrVariavel(&diaRTC);
+                EditaItemMenu(&dadosRTC[2]);                
+                LimitaVariaveis(&dadosRTC[2],1,31);
+                ImprimeVlrVariavel(&dadosRTC[2]);
                 break;
               case 3: //Define Mes
-                EditaItemMenu(&mesRTC);
-                if(mesRTC < 1){
-                  mesRTC = 1;
-                }
-                if(mesRTC > 12){
-                  mesRTC = 12;
-                }
-                ImprimeVlrVariavel(&mesRTC);
+                EditaItemMenu(&dadosRTC[3]);
+                LimitaVariaveis(&dadosRTC[3],1,12);
+                ImprimeVlrVariavel(&dadosRTC[3]);
                 break;
               case 4: //Define Ano
-              
-                if (digitalRead(BtnMenuDireita) == HIGH){
-                  anoRTC++;
-                }
-                if (digitalRead(BtnMenuEsquerda) == HIGH){
-                  anoRTC--;
-                }
-              
-                if(anoRTC < 2023){
-                  anoRTC = 2023;
-                }
-                if(anoRTC > 2099){
-                  anoRTC = 2099;
-                }
-              
+                EditaItemMenu(&dadosRTC[4]);              
+                LimitaVariaveis(&dadosRTC[4],2023,2099);
                 lcd_1.setCursor(11,1);
-                lcd_1.print(anoRTC);
+                lcd_1.print(dadosRTC[4]);
                 break;
               default:
                 break;

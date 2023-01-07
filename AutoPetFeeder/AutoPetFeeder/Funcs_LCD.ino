@@ -39,6 +39,17 @@ void EditaItemMenu(short* selectedVar){
   *selectedVar = tmpVar;    
 }
 
+void LimitaVariaveis(short* selectedVar, short limite1, short limite2){
+  short tmpVar = *selectedVar;
+  if(tmpVar < limite1){
+    tmpVar = limite1;
+  }
+  if(tmpVar > limite2){
+    tmpVar = limite2;
+  }
+  *selectedVar=tmpVar;
+}
+
 void ImprimeVlrVariavel(short* selectedVar){
   short tmpVar = *selectedVar;
   lcd_1.setCursor(13,1);
