@@ -1,20 +1,38 @@
-#include <Adafruit_LiquidCrystal.h>
+//Bibliotecas do LCD
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+//Biblioteca Servo
 #include <Servo.h>
+//Biblioteca RTC
+#include <RTClib.h>
+//Biblioteca EEPROM
+#include <EEPROM.h> //EEPROM tem 255bytes para serem lidos/gravados
+//Biblioteca Motor de passo
+#include <Stepper.h>
 
+////////////////
+// Definições //
+////////////////
 //Define Servo
-#define ServoPin 2
+#define ServoPin 4
 int pos = 0;
+#define AnguloServo 45 //Servo irá virar 45 graus para poder bloquear uma saida e despejar comida em um pote
 Servo servo_9;
 
 //Define LCD I2C
 int seconds = 0;
-Adafruit_LiquidCrystal lcd_1(0);
+LiquidCrystal_I2C lcd_1(0x27, 16, 2);
 
-//Pino de controle do Rele
-#define ReleControl 12 
+//Define RTC
+RTC_DS1307 rtc;
+
+//Define Motor de passo
+int passosPorVolta = 32;
+Stepper mp(passosPorVolta, 8,10,9,11);
 
 //Pino Buzzer
-#define BuzzerPin 11
+#define BuzzerPin 2
+#define BuzzerNote 698
 
 //Variavel para "travar" o Menu
 bool CheckEditandoItem = false;
@@ -30,9 +48,9 @@ short dadosRTC[] = {0,0}; //Hora, Minuto
 
 ////////////////////////////////////////////////////////////////
 
-#define BtnMenuEsquerda 8 //Define botão "Esquerda" do Menu
-#define BtnMenuDireita 7  //Define botão "Direita" do Menu
-#define BtnMenuSelect 4   //Define botão "Selecionar" do Menu
+#define BtnMenuEsquerda 13 //Define botão "Esquerda" do Menu
+#define BtnMenuDireita 12  //Define botão "Direita" do Menu
+#define BtnMenuSelect 7  //Define botão "Selecionar" do Menu
 
 int NavigateMenuIndex = 0;
 
@@ -83,9 +101,12 @@ String ProgAlimentarAgoraOptions[] = {
 
 void setup(){
   Serial.begin(115200);
+
+  Serial.println("Iniciando programa...");
   
   SetupServo();
   SetupLCD();
+  mp.setSpeed(500);
   
   // Define pino dos menus
   pinMode(BtnMenuEsquerda, INPUT);
@@ -93,17 +114,19 @@ void setup(){
   pinMode(BtnMenuSelect, INPUT);
   
   //Pino Rele motor
-  pinMode(ReleControl, OUTPUT);
-  digitalWrite(ReleControl, LOW);
+  //pinMode(ReleControl, OUTPUT);
+  //digitalWrite(ReleControl, LOW);
   
   //Pino do Buzzer
   pinMode(BuzzerPin, OUTPUT);
-  noTone(BuzzerPin);
+  Serial.println("Programa iniciado!");
+  tone(BuzzerPin, BuzzerNote, 250);
 }
 
 void SetupLCD(){
-  lcd_1.begin(16, 2); //Display 16x2
-  lcd_1.setBacklight(1);
+  lcd_1.init();
+  lcd_1.backlight();
+  lcd_1.setCursor(0, 0);
   lcd_1.print("Alimentador Pet");
   ImprimeSetasMenu();
   lcd_1.setCursor(1,1);
@@ -112,49 +135,49 @@ void SetupLCD(){
 
 void SetupServo(){
   servo_9.attach(ServoPin, 500, 2500);
-  servo_9.write(0);
+  servo_9.write(90);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void loop(){  
   if (digitalRead(BtnMenuEsquerda) == HIGH || digitalRead(BtnMenuDireita) == HIGH || digitalRead(BtnMenuSelect) == HIGH){
-    tone(BuzzerPin, 495, 10);
+    Serial.println("botao apertado");
+    tone(BuzzerPin, BuzzerNote, 10);
     ProcessaMenu();
     delay(250); 
   }
 }
 
 void ExecAlimentar(short tempoLigado){
-  servo_9.write(0); //Reseta Servo
-  
-  tone(BuzzerPin, 495, 500);
+  servo_9.write(90); //Reseta Servo
+  for (pos = 90; pos <= 90+AnguloServo; pos += 1) {
+    servo_9.write(pos);
+    delay(10);
+  }
+  tone(BuzzerPin, BuzzerNote, 500);
   
   //Alimenta o primeiro pote
-  digitalWrite(ReleControl, HIGH);
-  delay(tempoLigado*1000);
-  digitalWrite(ReleControl, LOW);
+  mp.step(2048);
   
   //Vira o Servo para alimentar o segundo pote
-  for (pos = 0; pos <= 90; pos += 1) {
+  for (pos = 90+AnguloServo; pos >= 90-AnguloServo; pos -= 1) {
     servo_9.write(pos);
     delay(10);
   }
   
   //Alimenta o segundo pote
-  digitalWrite(ReleControl, HIGH);
-  delay(tempoLigado*1000);  
-  digitalWrite(ReleControl, LOW);
+  mp.step(-2048);
   
   //Reseta o Servo
-  for (pos = 90; pos >= 0; pos -= 1) {
+  for (pos = 90-AnguloServo; pos <= 90; pos += 1) {
     servo_9.write(pos);
     delay(10);
   } 
   
-  tone(BuzzerPin, 495, 250);
+  tone(BuzzerPin, BuzzerNote, 250);
   delay(500);
-  tone(BuzzerPin, 495, 250);
+  tone(BuzzerPin, BuzzerNote, 250);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +334,7 @@ void ProcessaMenu(){
                     ImprimeSinaisMenu();
                   }
                   break;
-              case 5:
+              case 2:
                   AcessarMenu(&CheckConfigRelogioAccess, ProgHorarioOptions);
                   break;
               default:
@@ -347,7 +370,6 @@ void ProcessaMenu(){
                 LimitaVariaveis(&dadosRTC[4],2023,2099);
                 lcd_1.setCursor(11,1);
                 lcd_1.print(dadosRTC[4]);*/
-                break;
               default:
                 break;
             }
