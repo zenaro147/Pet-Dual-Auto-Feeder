@@ -1,4 +1,6 @@
-
+////////////////////////////////////////////////////////////////////////////////
+// FUNÇÕES GENÉRICAS DO MENU
+////////////////////////////////////////////////////////////////////////////////
 void NavegaMenu(String* elementsMenu, short QtdeElementos){     
   if (digitalRead(BtnMenuDireita) == HIGH){
     NavigateMenuIndex++;
@@ -72,4 +74,16 @@ void ImprimeSinaisMenu(){
   lcd_1.print("-");
   lcd_1.setCursor(15,1);
   lcd_1.print("+");
+}
+
+void ResetaMenu(){
+  NavigateMenuIndex=0;
+  CheckProgHorarioAccess=false;
+  CheckConfigRelogioAccess = false;
+  CheckProgHorarioSet1Access = false;
+  CheckProgHorarioSet2Access = false;
+  CheckAlimentarAgoraAccess = false;
+  ImprimeSetasMenu();
+  lcd_1.setCursor(1,1);
+  lcd_1.print(MainMenuOptions[0]);
 }
