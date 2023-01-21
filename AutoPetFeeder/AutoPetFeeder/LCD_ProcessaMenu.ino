@@ -10,14 +10,16 @@ void ProcessaMenu(){
       switch(NavigateMenuIndex){
         case 0:
           AcessarMenu(&CheckProgHorarioAccess, ProgHorarioOptions);
+          NavigateMenuIndex = 0;
           break;
         case 1:
           AcessarMenu(&CheckAlimentarAgoraAccess, ProgAlimentarAgoraOptions);
+          NavigateMenuIndex = 0;
           ImprimeVlrVariavel(&tempoAlimentadorLigado[2]); //Imprime variavel do primeiro item do menu
           break;
         case 2:
           //Reseta dados para padrão e salva na EEPROM
-          //ResetaMemoria();
+          ResetaMemoria();
           break;
         case 3:
           //Le dados salvos na EEPROM
@@ -97,14 +99,18 @@ void ProcessaMenu(){
             case 0:
                 //Config Relogio
               AcessarMenu(&CheckConfigRelogioAccess, ConfigRelogioOptions);
+              NavigateMenuIndex = 0;
+              ImprimeVlrVariavel(&dadosRTC[0]); //Imprime variavel do primeiro item do menu
                 break;
             case 1:
                 //Programa Horario 1              
               AcessarMenu(&CheckProgHorarioSet1Access, ProgHorarioSetOptions);
+              NavigateMenuIndex = 0;
                 break;
             case 2:
                 //Programa Horario 2
               AcessarMenu(&CheckProgHorarioSet2Access, ProgHorarioSetOptions);
+              NavigateMenuIndex = 0;
                 break;
             case 3:
               AcessarMenu(&CheckProgHorarioAccess, MainMenuOptions);
@@ -128,7 +134,7 @@ void ProcessaMenu(){
               case 1:
                 ImprimeVlrVariavel(&dadosRTC[1]);
                 break;
-              /*case 2:
+              case 2:
                 ImprimeVlrVariavel(&dadosRTC[2]);
                 break;
               case 3:
@@ -137,22 +143,22 @@ void ProcessaMenu(){
               case 4:
                 lcd_1.setCursor(11,1);
                 lcd_1.print(dadosRTC[4]);
-                break;*/
+                break;
             }
           }else if (digitalRead(BtnMenuSelect) == HIGH){
             switch(NavigateMenuIndex){
               case 0: //Define Hora
               case 1: //Define Minuto
-              /*case 2: //Define Dia
+              case 2: //Define Dia
               case 3: //Define Mes
-              case 4: //Define Ano*/
+              case 4: //Define Ano
                   if(!CheckEditandoItem){
                     CheckEditandoItem = true;
                     //Config Tempo em segundos que ficara ligado
                     ImprimeSinaisMenu();
                   }
                   break;
-              case 2:
+              case 5:
                   AcessarMenu(&CheckConfigRelogioAccess, ProgHorarioOptions);
                   break;
               default:
@@ -173,7 +179,7 @@ void ProcessaMenu(){
                 LimitaVariaveis(&dadosRTC[1],0,59);
                 ImprimeVlrVariavel(&dadosRTC[1]);
                 break;
-              /*case 2: //Define Dia
+              case 2: //Define Dia
                 EditaItemMenu(&dadosRTC[2]);                
                 LimitaVariaveis(&dadosRTC[2],1,31);
                 ImprimeVlrVariavel(&dadosRTC[2]);
@@ -187,7 +193,7 @@ void ProcessaMenu(){
                 EditaItemMenu(&dadosRTC[4]);              
                 LimitaVariaveis(&dadosRTC[4],2023,2099);
                 lcd_1.setCursor(11,1);
-                lcd_1.print(dadosRTC[4]);*/
+                lcd_1.print(dadosRTC[4]);
               default:
                 break;
             }

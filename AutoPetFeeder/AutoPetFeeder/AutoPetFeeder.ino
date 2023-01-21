@@ -53,28 +53,34 @@ short tempoAlimentadorLigado[3] = {5,5,5}; //Timer1, Timer2, Manual
 short dadosTimer[] = {0,0,0,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTimer2
 
 //Data e Hora do RTC
-//short dadosRTC[] = {0,0,1,1,2023}; //Hora, Minuto, Dia, Mes, Ano
-short dadosRTC[] = {0,0}; //Hora, Minuto
+short dadosRTC[] = {0,0,1,1,2023}; //Hora, Minuto, Dia, Mes, Ano
 
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÃO SETUP DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
+void(* resetFunc) (void) = 0;//declare reset function at address 0
 
 void setup(){
   Serial.begin(115200);
 
   Serial.println("Iniciando programa...");
   delay (1000);
+
+  Serial.println("Lendo configurações salvas...");
+  //LeMemoria(); //Le configs na EEPROM, caso tenha, e atribui nas variáveis
   
-  Serial.println("Iniciando servo..");
+  Serial.println("Iniciando servo...");
   SetupServo();
   
-  Serial.println("Iniciando LCD..");
+  Serial.println("Iniciando LCD...");
   SetupLCD();
   
-  Serial.println("Iniciando motor de passo..");
+  Serial.println("Iniciando motor de passo...");
   mp.setSpeed(500);
-   
+
+  Serial.println("Iniciando relógio...");
+  SetupRTC();
+
   Serial.println("Iniciando demais pinos e buzzer..");
   // Define pino dos menus
   pinMode(BtnMenuEsquerda, INPUT);
@@ -102,16 +108,27 @@ void SetupLCD(){
   lcd_1.print(MainMenuOptions[0]);
 }
 
+void SetupRTC(){
+  if (!rtc.begin()) {
+    Serial.println("Erro ao iniciar renólio!");
+  }
+  if (!rtc.isrunning()) {
+    Serial.println("RTC precisa ser configurado!");
+    rtc.adjust(DateTime(dadosRTC[4], dadosRTC[3], dadosRTC[2], dadosRTC[0], dadosRTC[1], 0));
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÃO LOOP DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
-void loop(){  
+void loop(){
   if (digitalRead(BtnMenuEsquerda) == HIGH || digitalRead(BtnMenuDireita) == HIGH || digitalRead(BtnMenuSelect) == HIGH){
     Serial.println("Botão apertado!");
     tone(BuzzerPin, BuzzerNote, 10);
     ProcessaMenu();
     delay(250); 
   }
+  AtualizaVarsRelogio();
 }
 
 void ExecAlimentar(short tempoLigado){  
@@ -129,8 +146,7 @@ void ExecAlimentar(short tempoLigado){
   unsigned long millisMotor = millis();
   while(millis() - millisMotor <= tempoLigado*1000){
     mp.step(1);
-  }
- 
+  } 
 
   lcd_1.setCursor(0, 1);
   lcd_1.print("Preparando pote2");
@@ -158,10 +174,18 @@ void ExecAlimentar(short tempoLigado){
   delay(500);
   tone(BuzzerPin, BuzzerNote, 250);
 
-  
   lcd_1.setCursor(0, 1);
   lcd_1.print("   Concluido!   ");
   Serial.println("Ração colocada!");
   delay(2000);
   ResetaMenu();
+}
+
+void AtualizaVarsRelogio(){
+  DateTime agora = rtc.now();
+  dadosRTC[0]= agora.hour();
+  dadosRTC[1]= agora.minute();
+  dadosRTC[2]= agora.day();
+  dadosRTC[3]= agora.month();
+  dadosRTC[4]= agora.year();  
 }

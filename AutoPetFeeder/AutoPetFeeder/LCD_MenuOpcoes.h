@@ -23,11 +23,11 @@ String ProgHorarioOptions[] = {
 
 bool CheckConfigRelogioAccess = false;
 String ConfigRelogioOptions[] = { 
-  "Definir Hora  ",
-  "Definir Min   ",
-  /*"Definir Dia   ",
-  "Definir Mes   ",
-  "Definir Ano   ",*/
+  "Def. Hora     ",
+  "Def. Min      ",
+  "Def. Dia      ",
+  "Def. Mes      ",
+  "Def. Ano      ",
   "Voltar        "
 };
 
