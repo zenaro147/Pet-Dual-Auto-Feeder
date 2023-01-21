@@ -126,7 +126,11 @@ void ExecAlimentar(short tempoLigado){
     delay(10);
   }  
   //Alimenta o pote
-  mp.step(2048);
+  unsigned long millisMotor = millis();
+  while(millis() - millisMotor <= tempoLigado*1000){
+    mp.step(1);
+  }
+ 
 
   lcd_1.setCursor(0, 1);
   lcd_1.print("Preparando pote2");
@@ -137,8 +141,10 @@ void ExecAlimentar(short tempoLigado){
     delay(10);
   }  
   //Alimenta o pote
-  mp.step(2048);
-
+  millisMotor = millis();  
+  while(millis() - millisMotor <= tempoLigado*1000){
+    mp.step(1);
+  }
   
   lcd_1.setCursor(0, 1);
   lcd_1.print(" Finalizando... ");
