@@ -163,14 +163,12 @@ void SetupRTC(){
 void loop(){  
   //
   if (digitalRead(BtnMenuEsquerda) == estadoBotao || digitalRead(BtnMenuDireita) == estadoBotao || digitalRead(BtnMenuSelect) == estadoBotao){
-    Serial.println("Botão apertado!");
-    //tone(BuzzerPin, BuzzerNote, 10);
+    tone(BuzzerPin, BuzzerNote, 10);
     ProcessaMenu();
     delay(250); 
   }
   
   if(millis() - millisRTC >= 5*1000 && !CheckProgHorarioAccess && !CheckConfigRelogioAccess){
-    
     AtualizaVarsRelogio();
     millisRTC = millis();
     
