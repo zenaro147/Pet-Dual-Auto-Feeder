@@ -20,9 +20,9 @@
 // DEFINIÇÃO DE VARIAVEIS DO PROGRMAA
 ////////////////////////////////////////////////////////////////////////////////
 //Botões do menu
-#define BtnMenuEsquerda 34 //Define botão "Esquerda" do Menu
-#define BtnMenuDireita 32  //Define botão "Direita" do Menu
-#define BtnMenuSelect 30    //Define botão "Selecionar" do Menu
+#define BtnMenuEsquerda 3 //Define botão "Esquerda" do Menu
+#define BtnMenuDireita 2  //Define botão "Direita" do Menu
+#define BtnMenuSelect 18    //Define botão "Selecionar" do Menu
 #define estadoBotao LOW
 
 //Define Servo
@@ -39,7 +39,7 @@ RTC_DS1307 rtc;
 
 //Define Motor de passo
 int passosPorVolta = 32;
-Stepper mp(passosPorVolta, 24,3,2,4); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
+Stepper mp(passosPorVolta, 24,6,5,7); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
 
 //Pino Buzzer
 #define BuzzerPin 23
@@ -62,6 +62,7 @@ short dadosTimer[] = {0,0,0,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTi
 
 //Data e Hora do RTC
 short dadosRTC[] = {0,0,1,1,2023}; //Hora, Minuto, Dia, Mes, Ano
+unsigned long millisRTC = millis();
 
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÃO SETUP DO PROGRAMA
@@ -93,20 +94,25 @@ void setup(){
   Serial.print("Iniciando relógio...");
   SetupRTC();
 
-  Serial.println("Iniciando demais pinos e buzzer..");
+  Serial.println("Iniciando demais pinos e buzzer...");
   // Define pino dos menus
   pinMode(BtnMenuEsquerda, INPUT_PULLUP);
   pinMode(BtnMenuDireita, INPUT_PULLUP);
-  pinMode(BtnMenuSelect, INPUT_PULLUP);
-  
-  //attachInterrupt(digitalPinToInterrupt(BtnMenuEsquerda), InterruptAtualizaMenu, CHANGE);
-  //attachInterrupt(digitalPinToInterrupt(BtnMenuDireita), InterruptAtualizaMenu, CHANGE);
-  //attachInterrupt(digitalPinToInterrupt(BtnMenuSelect), InterruptAtualizaMenu, CHANGE);
-  
+  pinMode(BtnMenuSelect, INPUT_PULLUP);  
   
   //Pino do Buzzer
   pinMode(BuzzerPin, OUTPUT);
-  tone(BuzzerPin, BuzzerNote, 250);  
+  tone(BuzzerPin, BuzzerNote, 250);
+
+  //Valida gatilhos a serem disparados baseado no horario
+  Serial.println("Atualizando gatilhos...");
+  if(dadosTimer[0] < rtc.now().hour() || (dadosTimer[0] <= rtc.now().hour() && dadosTimer[1] < rtc.now().minute())){
+    timerJaAcionou[0]=true;
+  }
+  if(dadosTimer[2] < rtc.now().hour() || (dadosTimer[2] <= rtc.now().hour() && dadosTimer[3] < rtc.now().minute())){
+    timerJaAcionou[1]=true;
+  }
+  
   Serial.println("Programa iniciado!");
 }
 
@@ -129,7 +135,18 @@ void SetupRTC(){
   if (!rtc.begin()) {
     Serial.println("Erro ao iniciar relógio!");
   }else{    
-    Serial.println("Sucesso!");
+    //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    AtualizaVarsRelogio();
+    Serial.print("Sucesso! Hora Atual: ");
+    Serial.print(dadosRTC[2]);
+    Serial.print("/");
+    Serial.print(dadosRTC[3]);
+    Serial.print("/");
+    Serial.print(dadosRTC[4]);
+    Serial.print(" - ");
+    Serial.print(dadosRTC[0]);
+    Serial.print(":");
+    Serial.println(dadosRTC[1]);
   }
   if (!rtc.isrunning()) {
     Serial.println("RTC precisa ser configurado!");
@@ -140,44 +157,62 @@ void SetupRTC(){
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÃO LOOP DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
-void InterruptAtualizaMenu(){
-  if (digitalRead(BtnMenuEsquerda) == estadoBotao || digitalRead(BtnMenuDireita) == estadoBotao || digitalRead(BtnMenuSelect) == estadoBotao){
-    Serial.println("Botão apertado!");
-    //tone(BuzzerPin, BuzzerNote, 10);
-    ProcessaMenu();
-    delay(250); 
-  }
-}
 
 void loop(){  
-  //AtualizaVarsRelogio();
+  //
   if (digitalRead(BtnMenuEsquerda) == estadoBotao || digitalRead(BtnMenuDireita) == estadoBotao || digitalRead(BtnMenuSelect) == estadoBotao){
     Serial.println("Botão apertado!");
     //tone(BuzzerPin, BuzzerNote, 10);
     ProcessaMenu();
     delay(250); 
   }
+  
+  if(millis() - millisRTC >= 5*1000 && !CheckProgHorarioAccess && !CheckConfigRelogioAccess){
+    Serial.println("RTC atualizado");
+    AtualizaVarsRelogio();
+    millisRTC = millis();
+    Serial.println("Status: ");
+    Serial.print("Gatilho 1: ");
+    Serial.println(timerJaAcionou[0]);
+    Serial.print("Gatilho 2: ");
+    Serial.println(timerJaAcionou[1]);
+    Serial.print(" Hora Atual: ");
+    Serial.print(dadosRTC[2]);
+    Serial.print("/");
+    Serial.print(dadosRTC[3]);
+    Serial.print("/");
+    Serial.print(dadosRTC[4]);
+    Serial.print(" - ");
+    Serial.print(dadosRTC[0]);
+    Serial.print(":");
+    Serial.println(dadosRTC[1]);
+
+    //Verifica se já mudou o dia para resetar os acionadores
+    short tmpDia = rtc.now().day();
+    if(dadosRTC[2] != tmpDia){
+      Serial.println("Gatilhos resetados!");
+      Serial.println(dadosRTC[2]);
+      Serial.println(rtc.now().day());
+      if(acionarTimerAlimentador[0] == 1){
+        timerJaAcionou[0] = true;
+      }
+      if(acionarTimerAlimentador[1] == 1){
+        timerJaAcionou[1] = true;
+      }
+    }
+  } 
 
   //Aciona o alimentador no horario determinado
-  /*if(acionarTimerAlimentador[0] == 1 && !timerJaAcionou[0] && dadosRTC[0] == dadosTimer[0] && dadosRTC[1] == dadosTimer[1]){
+  if(acionarTimerAlimentador[0] == 1 && !timerJaAcionou[0] && dadosRTC[0] == dadosTimer[0] && dadosRTC[1] == dadosTimer[1]){
     timerJaAcionou[0] = true;
     ExecAlimentar(tempoAlimentadorLigado[0]);
   }
   if(acionarTimerAlimentador[1] == 1 && !timerJaAcionou[1] && dadosRTC[0] == dadosTimer[2] && dadosRTC[1] == dadosTimer[3]){
     timerJaAcionou[1] = true;
     ExecAlimentar(tempoAlimentadorLigado[1]);
-  }*/
+  }
 
-  //Verifica se já mudou o dia para resetar os acionadores
-  /*if(dadosRTC[2] != rtc.now().day()){
-    Serial.println("Gatilhos resetados!");
-    if(acionarTimerAlimentador[0] == 1){
-      timerJaAcionou[0] = true;
-    }
-    if(acionarTimerAlimentador[1] == 1){
-      timerJaAcionou[1] = true;
-    }
-  }*/  
+  
 }
 
 void ExecAlimentar(short tempoLigado){  

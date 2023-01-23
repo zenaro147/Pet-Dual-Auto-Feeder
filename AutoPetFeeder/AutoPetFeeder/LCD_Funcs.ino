@@ -44,10 +44,10 @@ void EditaItemMenu(short* selectedVar){
 void LimitaVariaveis(short* selectedVar, short limite1, short limite2){
   short tmpVar = *selectedVar;
   if(tmpVar < limite1){
-    tmpVar = limite1;
+    tmpVar = limite2;
   }
   if(tmpVar > limite2){
-    tmpVar = limite2;
+    tmpVar = limite1;
   }
   *selectedVar=tmpVar;
 }

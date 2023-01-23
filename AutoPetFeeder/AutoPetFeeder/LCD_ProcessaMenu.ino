@@ -172,6 +172,7 @@ void ProcessaMenu(){
                   }
                   break;
               case 5:
+                  rtc.adjust(DateTime(dadosRTC[4], dadosRTC[3], dadosRTC[2], dadosRTC[0], dadosRTC[1], 0));
                   AcessarMenu(&CheckConfigRelogioAccess, ProgHorarioOptions);
                   break;
               default:
@@ -280,7 +281,13 @@ void ProcessaMenu(){
                   }
                   break;
               case 4: 
-              AcessarMenu(CheckProgHorarioSet1Access == true ? &CheckProgHorarioSet1Access : &CheckProgHorarioSet2Access, ProgHorarioOptions);
+                if(dadosTimer[0] > rtc.now().hour() || (dadosTimer[0] >= rtc.now().hour() && dadosTimer[1] > rtc.now().minute())){
+                  timerJaAcionou[0]=false;
+                }
+                if(dadosTimer[2] > rtc.now().hour() || (dadosTimer[2] >= rtc.now().hour() && dadosTimer[3] > rtc.now().minute())){
+                  timerJaAcionou[1]=false;
+                }
+                AcessarMenu(CheckProgHorarioSet1Access == true ? &CheckProgHorarioSet1Access : &CheckProgHorarioSet2Access, ProgHorarioOptions);
               break;
               default:
               break;
