@@ -3,8 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 int NavigateMenuIndex = 0;
 
-String TextoBranco = "                ";
-
 String MainMenuOptions[] = { 
   "Prog Horario  ",
   "Ligar Agora   ",

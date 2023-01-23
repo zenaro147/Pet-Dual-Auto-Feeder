@@ -2,10 +2,10 @@
 // FUNÇÕES GENÉRICAS DO MENU
 ////////////////////////////////////////////////////////////////////////////////
 void NavegaMenu(String* elementsMenu, short QtdeElementos){     
-  if (digitalRead(BtnMenuDireita) == HIGH){
+  if (digitalRead(BtnMenuDireita) == estadoBotao){
     NavigateMenuIndex++;
   }
-  if (digitalRead(BtnMenuEsquerda) == HIGH){
+  if (digitalRead(BtnMenuEsquerda) == estadoBotao){
     NavigateMenuIndex--;
   }
 
@@ -32,10 +32,10 @@ void AcessarMenu(bool* menuToAccess, String* elementsMenu){
 
 void EditaItemMenu(short* selectedVar){
   short tmpVar = *selectedVar;
-  if (digitalRead(BtnMenuDireita) == HIGH){
+  if (digitalRead(BtnMenuDireita) == estadoBotao){
     tmpVar++;
   }
-  if (digitalRead(BtnMenuEsquerda) == HIGH){
+  if (digitalRead(BtnMenuEsquerda) == estadoBotao){
     tmpVar--;
   }
   *selectedVar = tmpVar;    
@@ -82,7 +82,9 @@ void ResetaMenu(){
   CheckConfigRelogioAccess = false;
   CheckProgHorarioSet1Access = false;
   CheckProgHorarioSet2Access = false;
-  CheckAlimentarAgoraAccess = false;
+  CheckAlimentarAgoraAccess = false;  
+  lcd_1.setCursor(0, 0);
+  lcd_1.print("Alimentador Pet");
   ImprimeSetasMenu();
   lcd_1.setCursor(1,1);
   lcd_1.print(MainMenuOptions[0]);

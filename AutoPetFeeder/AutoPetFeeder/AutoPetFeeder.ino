@@ -9,7 +9,7 @@
 #include <RTClib.h>
 
 //Biblioteca EEPROM
-#include <EEPROM.h> //EEPROM tem 255bytes para serem lidos/gravados
+#include <EEPROM.h>
 
 //Biblioteca Motor de passo
 #include <Stepper.h>
@@ -20,15 +20,16 @@
 // DEFINIÇÃO DE VARIAVEIS DO PROGRMAA
 ////////////////////////////////////////////////////////////////////////////////
 //Botões do menu
-#define BtnMenuEsquerda 13 //Define botão "Esquerda" do Menu
-#define BtnMenuDireita 12  //Define botão "Direita" do Menu
-#define BtnMenuSelect 7    //Define botão "Selecionar" do Menu
+#define BtnMenuEsquerda 34 //Define botão "Esquerda" do Menu
+#define BtnMenuDireita 32  //Define botão "Direita" do Menu
+#define BtnMenuSelect 30    //Define botão "Selecionar" do Menu
+#define estadoBotao LOW
 
 //Define Servo
-#define ServoPin 4
+#define ServoPin 22
 int pos = 0;
 #define AnguloServo 45 //Servo irá virar 45 graus para poder bloquear uma saida e despejar comida em um pote
-Servo servo_9;
+Servo mServo;
 
 //Define LCD I2C
 LiquidCrystal_I2C lcd_1(0x27, 16, 2);
@@ -38,16 +39,23 @@ RTC_DS1307 rtc;
 
 //Define Motor de passo
 int passosPorVolta = 32;
-Stepper mp(passosPorVolta, 8,10,9,11); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
+Stepper mp(passosPorVolta, 24,3,2,4); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
 
 //Pino Buzzer
-#define BuzzerPin 2
+#define BuzzerPin 23
 #define BuzzerNote 698
 
 //Variavel para "travar" o Menu
 bool CheckEditandoItem = false;
+
 //Tempo em segundos que o motor ficará ligado jogando comida
 short tempoAlimentadorLigado[3] = {5,5,5}; //Timer1, Timer2, Manual
+
+//Variavel que controla se o Timer1 e/ou Timer2 está ativado
+short acionarTimerAlimentador[2] = {0,0}; //Timer1, Timer2
+
+//Variavel que controla se o Timer1 e/ou Timer2 ja foi acionado no dia
+bool timerJaAcionou[2] = {false,false}; //Timer1, Timer2
 
 //Hora e Minuto dos timers
 short dadosTimer[] = {0,0,0,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTimer2
@@ -66,8 +74,12 @@ void setup(){
   Serial.println("Iniciando programa...");
   delay (1000);
 
-  Serial.println("Lendo configurações salvas...");
-  //LeMemoria(); //Le configs na EEPROM, caso tenha, e atribui nas variáveis
+  Serial.print("Lendo configurações salvas...");
+  if(LeMemoria()){
+    Serial.println("Dados carregados!");
+  }else{    
+    Serial.println("Não existem valores dados a serem carregados!");
+  }
   
   Serial.println("Iniciando servo...");
   SetupServo();
@@ -78,14 +90,19 @@ void setup(){
   Serial.println("Iniciando motor de passo...");
   mp.setSpeed(500);
 
-  Serial.println("Iniciando relógio...");
+  Serial.print("Iniciando relógio...");
   SetupRTC();
 
   Serial.println("Iniciando demais pinos e buzzer..");
   // Define pino dos menus
-  pinMode(BtnMenuEsquerda, INPUT);
-  pinMode(BtnMenuDireita, INPUT);
-  pinMode(BtnMenuSelect, INPUT);
+  pinMode(BtnMenuEsquerda, INPUT_PULLUP);
+  pinMode(BtnMenuDireita, INPUT_PULLUP);
+  pinMode(BtnMenuSelect, INPUT_PULLUP);
+  
+  //attachInterrupt(digitalPinToInterrupt(BtnMenuEsquerda), InterruptAtualizaMenu, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(BtnMenuDireita), InterruptAtualizaMenu, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(BtnMenuSelect), InterruptAtualizaMenu, CHANGE);
+  
   
   //Pino do Buzzer
   pinMode(BuzzerPin, OUTPUT);
@@ -94,8 +111,8 @@ void setup(){
 }
 
 void SetupServo(){
-  servo_9.attach(ServoPin, 500, 2500);
-  servo_9.write(90);
+  mServo.attach(ServoPin, 500, 2500);
+  mServo.write(90);
 }
 
 void SetupLCD(){
@@ -110,7 +127,9 @@ void SetupLCD(){
 
 void SetupRTC(){
   if (!rtc.begin()) {
-    Serial.println("Erro ao iniciar renólio!");
+    Serial.println("Erro ao iniciar relógio!");
+  }else{    
+    Serial.println("Sucesso!");
   }
   if (!rtc.isrunning()) {
     Serial.println("RTC precisa ser configurado!");
@@ -121,25 +140,55 @@ void SetupRTC(){
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÃO LOOP DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
-void loop(){
-  if (digitalRead(BtnMenuEsquerda) == HIGH || digitalRead(BtnMenuDireita) == HIGH || digitalRead(BtnMenuSelect) == HIGH){
+void InterruptAtualizaMenu(){
+  if (digitalRead(BtnMenuEsquerda) == estadoBotao || digitalRead(BtnMenuDireita) == estadoBotao || digitalRead(BtnMenuSelect) == estadoBotao){
     Serial.println("Botão apertado!");
-    tone(BuzzerPin, BuzzerNote, 10);
+    //tone(BuzzerPin, BuzzerNote, 10);
     ProcessaMenu();
     delay(250); 
   }
-  AtualizaVarsRelogio();
+}
+
+void loop(){  
+  //AtualizaVarsRelogio();
+  if (digitalRead(BtnMenuEsquerda) == estadoBotao || digitalRead(BtnMenuDireita) == estadoBotao || digitalRead(BtnMenuSelect) == estadoBotao){
+    Serial.println("Botão apertado!");
+    //tone(BuzzerPin, BuzzerNote, 10);
+    ProcessaMenu();
+    delay(250); 
+  }
+
+  //Aciona o alimentador no horario determinado
+  /*if(acionarTimerAlimentador[0] == 1 && !timerJaAcionou[0] && dadosRTC[0] == dadosTimer[0] && dadosRTC[1] == dadosTimer[1]){
+    timerJaAcionou[0] = true;
+    ExecAlimentar(tempoAlimentadorLigado[0]);
+  }
+  if(acionarTimerAlimentador[1] == 1 && !timerJaAcionou[1] && dadosRTC[0] == dadosTimer[2] && dadosRTC[1] == dadosTimer[3]){
+    timerJaAcionou[1] = true;
+    ExecAlimentar(tempoAlimentadorLigado[1]);
+  }*/
+
+  //Verifica se já mudou o dia para resetar os acionadores
+  /*if(dadosRTC[2] != rtc.now().day()){
+    Serial.println("Gatilhos resetados!");
+    if(acionarTimerAlimentador[0] == 1){
+      timerJaAcionou[0] = true;
+    }
+    if(acionarTimerAlimentador[1] == 1){
+      timerJaAcionou[1] = true;
+    }
+  }*/  
 }
 
 void ExecAlimentar(short tempoLigado){  
-  servo_9.write(90); //Reseta Servo
+  mServo.write(90); //Reseta Servo
   
   lcd_1.setCursor(0, 1);
   lcd_1.print("Preparando pote1");
   Serial.println("Alimentando pote 1...");  
   tone(BuzzerPin, BuzzerNote, 500);
   for (pos = 90; pos <= 90+AnguloServo; pos += 1) {
-    servo_9.write(pos);
+    mServo.write(pos);
     delay(10);
   }  
   //Alimenta o pote
@@ -153,7 +202,7 @@ void ExecAlimentar(short tempoLigado){
   Serial.println("Alimentando pote 2...");  
   //Vira o Servo para alimentar o segundo pote
   for (pos = 90+AnguloServo; pos >= 90-AnguloServo; pos -= 1) {
-    servo_9.write(pos);
+    mServo.write(pos);
     delay(10);
   }  
   //Alimenta o pote
@@ -167,7 +216,7 @@ void ExecAlimentar(short tempoLigado){
   Serial.println("Finalizando...");  
   //Reseta o Servo
   for (pos = 90-AnguloServo; pos <= 90; pos += 1) {
-    servo_9.write(pos);
+    mServo.write(pos);
     delay(10);
   }   
   tone(BuzzerPin, BuzzerNote, 250);
