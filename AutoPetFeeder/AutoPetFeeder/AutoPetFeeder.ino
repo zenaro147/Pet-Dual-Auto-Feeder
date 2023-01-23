@@ -1,3 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
 //#define DEBUG_MODE
 
 #include "config.h"
@@ -71,21 +88,21 @@ void setup(){
   Serial.println("Iniciando programa...");
   delay (1000);
 
+  Serial.println("Iniciando servo...");
+  SetupServo();
+  
+  Serial.println("Iniciando LCD...");
+  SetupLCD();
+
+  Serial.println("Iniciando motor de passo...");
+  mp.setSpeed(velocidadeMotor);
+
   Serial.print("Lendo configurações salvas...");
   if(LeMemoria()){
     Serial.println("Dados carregados!");
   }else{    
     Serial.println("Não existem valores dados a serem carregados!");
   }
-  
-  Serial.println("Iniciando servo...");
-  SetupServo();
-  
-  Serial.println("Iniciando LCD...");
-  SetupLCD();
-  
-  Serial.println("Iniciando motor de passo...");
-  mp.setSpeed(velocidadeMotor);
 
   Serial.print("Iniciando relógio...");
   SetupRTC();
@@ -112,6 +129,12 @@ void setup(){
   millisLCD = millis();
   millisRTC = millis();  
   Serial.println("Programa iniciado!");
+  
+  //Imprime Data e Hora no display
+  char buffLCD[16];
+  sprintf(buffLCD, "%02d/%02d/%4d %2d:%02d", dadosRTC[2], dadosRTC[3],dadosRTC[4],dadosRTC[0],dadosRTC[1]);
+  lcd_1.setCursor(0,0);    
+  lcd_1.print(buffLCD);
 }
 
 void SetupServo(){
@@ -124,6 +147,9 @@ void SetupLCD(){
   lcd_1.backlight();
   lcd_1.setCursor(0, 0);
   lcd_1.print("Alimentador Pet");
+  lcd_1.setCursor(0, 1);
+  lcd_1.print("  Iniciando...");
+  delay(1000);
   ImprimeSetasMenu();
   lcd_1.setCursor(1,1);
   lcd_1.print(MainMenuOptions[0]);
@@ -175,7 +201,6 @@ void loop(){
   }
   
   if(millis() - millisRTC >= intervaloAttRelogio*1000 && !CheckProgHorarioAccess && !CheckConfigRelogioAccess){
-    AtualizaVarsRelogio();    
     millisRTC = millis();
     
     #ifdef DEBUG_MODE    
@@ -206,7 +231,6 @@ void loop(){
       Serial.print(":");
       Serial.println(dadosRTC[1]);
     #endif
-
     //Verifica se já mudou o dia para resetar os acionadores
     short tmpDia = rtc.now().day();
     if(dadosRTC[2] != tmpDia){
@@ -220,6 +244,13 @@ void loop(){
         timerJaAcionou[1] = true;
       }
     }
+    AtualizaVarsRelogio();
+
+    //Imprime Data e Hora no display
+    char buffLCD[16];
+    sprintf(buffLCD, "%02d/%02d/%4d %2d:%02d", dadosRTC[2], dadosRTC[3],dadosRTC[4],dadosRTC[0],dadosRTC[1]);
+    lcd_1.setCursor(0,0);    
+    lcd_1.print(buffLCD);
   } 
 
   //Aciona o alimentador no horario determinado

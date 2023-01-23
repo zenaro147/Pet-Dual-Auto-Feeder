@@ -82,9 +82,7 @@ void ResetaMenu(){
   CheckConfigRelogioAccess = false;
   CheckProgHorarioSet1Access = false;
   CheckProgHorarioSet2Access = false;
-  CheckAlimentarAgoraAccess = false;  
-  lcd_1.setCursor(0, 0);
-  lcd_1.print("Alimentador Pet");
+  CheckAlimentarAgoraAccess = false;
   ImprimeSetasMenu();
   lcd_1.setCursor(1,1);
   lcd_1.print(MainMenuOptions[0]);
