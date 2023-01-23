@@ -135,7 +135,7 @@ void SetupRTC(){
   if (!rtc.begin()) {
     Serial.println("Erro ao iniciar relógio!");
   }else{    
-    //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     AtualizaVarsRelogio();
     Serial.print("Sucesso! Hora Atual: ");
     Serial.print(dadosRTC[2]);
@@ -172,11 +172,22 @@ void loop(){
     AtualizaVarsRelogio();
     millisRTC = millis();
     Serial.println("Status: ");
+    
     Serial.print("Gatilho 1: ");
-    Serial.println(timerJaAcionou[0]);
+    Serial.print(timerJaAcionou[0]);
+    Serial.print(" - ");
+    Serial.print(dadosTimer[0]);
+    Serial.print(":");
+    Serial.println(dadosTimer[1]);
+    
     Serial.print("Gatilho 2: ");
-    Serial.println(timerJaAcionou[1]);
-    Serial.print(" Hora Atual: ");
+    Serial.print(timerJaAcionou[1]);
+    Serial.print(" - ");
+    Serial.print(dadosTimer[2]);
+    Serial.print(":");
+    Serial.println(dadosTimer[3]);
+    
+    Serial.print("Hora Atual: ");
     Serial.print(dadosRTC[2]);
     Serial.print("/");
     Serial.print(dadosRTC[3]);
