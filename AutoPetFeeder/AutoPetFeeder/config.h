@@ -2,9 +2,9 @@
 // DEFINIÇÃO DE VARIAVEIS E PINOS DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
 //Botões do menu
-#define BtnMenuEsquerda 3         //Define botão "Esquerda" do Menu
-#define BtnMenuDireita 2          //Define botão "Direita" do Menu
-#define BtnMenuSelect 18          //Define botão "Selecionar" do Menu
+#define BtnMenuEsquerda 32        //Define botão "Esquerda" do Menu
+#define BtnMenuDireita 30         //Define botão "Direita" do Menu
+#define BtnMenuSelect 28          //Define botão "Selecionar" do Menu
 #define estadoBotao LOW           //Define estado que o botão tem que estar para ser reconhecido (Padrão: LOW)
 
 //Servo motor
