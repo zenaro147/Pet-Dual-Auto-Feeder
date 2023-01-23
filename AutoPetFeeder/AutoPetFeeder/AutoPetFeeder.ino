@@ -1,5 +1,7 @@
 //#define DEBUG_MODE
 
+#include "config.h"
+
 //Bibliotecas do LCD
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -19,33 +21,25 @@
 #include "LCD_MenuOpcoes.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// DEFINIÇÃO DE VARIAVEIS DO PROGRMAA
+// VARIAVEIS INTERNAS DO PROGRMAA
 ////////////////////////////////////////////////////////////////////////////////
-//Botões do menu
-#define BtnMenuEsquerda 3 //Define botão "Esquerda" do Menu
-#define BtnMenuDireita 2  //Define botão "Direita" do Menu
-#define BtnMenuSelect 18    //Define botão "Selecionar" do Menu
-#define estadoBotao LOW
-
-//Define Servo
-#define ServoPin 22
-int pos = 0;
-#define AnguloServo 45 //Servo irá virar 45 graus para poder bloquear uma saida e despejar comida em um pote
+int servoPos = 0;
 Servo mServo;
 
 //Define LCD I2C
 LiquidCrystal_I2C lcd_1(0x27, 16, 2);
+bool boolTelaLigada = true;
+unsigned long millisLCD = millis();
 
 //Define RTC
 RTC_DS1307 rtc;
 
 //Define Motor de passo
-int passosPorVolta = 32;
-Stepper mp(passosPorVolta, 24,6,5,7); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
-
-//Pino Buzzer
-#define BuzzerPin 23
-#define BuzzerNote 698
+#ifdef InverterIN2IN3
+Stepper mp(passosPorVolta, PinoIN1,PinoIN3,PinoIN2,PinoIN4); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
+#else
+Stepper mp(passosPorVolta, PinoIN1,PinoIN2,PinoIN3,PinoIN4); //Caso tenha probemas com o motor, inverter a posição do 9 e 10
+#endif
 
 //Variavel para "travar" o Menu
 bool CheckEditandoItem = false;
@@ -91,7 +85,7 @@ void setup(){
   SetupLCD();
   
   Serial.println("Iniciando motor de passo...");
-  mp.setSpeed(500);
+  mp.setSpeed(velocidadeMotor);
 
   Serial.print("Iniciando relógio...");
   SetupRTC();
@@ -115,12 +109,14 @@ void setup(){
     timerJaAcionou[1]=true;
   }
   
+  millisLCD = millis();
+  millisRTC = millis();  
   Serial.println("Programa iniciado!");
 }
 
 void SetupServo(){
   mServo.attach(ServoPin, 500, 2500);
-  mServo.write(90);
+  mServo.write(AnguloPadraoServo);
 }
 
 void SetupLCD(){
@@ -137,7 +133,6 @@ void SetupRTC(){
   if (!rtc.begin()) {
     Serial.println("Erro ao iniciar relógio!");
   }else{    
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
     AtualizaVarsRelogio();
     Serial.print("Sucesso! Hora Atual: ");
     Serial.print(dadosRTC[2]);
@@ -161,15 +156,26 @@ void SetupRTC(){
 ////////////////////////////////////////////////////////////////////////////////
 
 void loop(){  
-  //
   if (digitalRead(BtnMenuEsquerda) == estadoBotao || digitalRead(BtnMenuDireita) == estadoBotao || digitalRead(BtnMenuSelect) == estadoBotao){
+    if(!boolTelaLigada){
+      lcd_1.display();
+      lcd_1.backlight();  
+      millisLCD = millis();    
+      boolTelaLigada=true;
+    }
     tone(BuzzerPin, BuzzerNote, 10);
     ProcessaMenu();
     delay(250); 
   }
+
+  if(millis() - millisLCD >= timeoutLCD*1000 && boolTelaLigada){
+    lcd_1.noDisplay();
+    lcd_1.noBacklight();
+    boolTelaLigada=false;
+  }
   
-  if(millis() - millisRTC >= 5*1000 && !CheckProgHorarioAccess && !CheckConfigRelogioAccess){
-    AtualizaVarsRelogio();
+  if(millis() - millisRTC >= intervaloAttRelogio*1000 && !CheckProgHorarioAccess && !CheckConfigRelogioAccess){
+    AtualizaVarsRelogio();    
     millisRTC = millis();
     
     #ifdef DEBUG_MODE    
@@ -235,8 +241,8 @@ void ExecAlimentar(short tempoLigado){
   lcd_1.print("Preparando pote1");
   Serial.println("Alimentando pote 1...");  
   tone(BuzzerPin, BuzzerNote, 500);
-  for (pos = 90; pos <= 90+AnguloServo; pos += 1) {
-    mServo.write(pos);
+  for (servoPos = AnguloPadraoServo; servoPos <= AnguloPadraoServo+AnguloServo; servoPos += 1) {
+    mServo.write(servoPos);
     delay(10);
   }  
   //Alimenta o pote
@@ -249,8 +255,8 @@ void ExecAlimentar(short tempoLigado){
   lcd_1.print("Preparando pote2");
   Serial.println("Alimentando pote 2...");  
   //Vira o Servo para alimentar o segundo pote
-  for (pos = 90+AnguloServo; pos >= 90-AnguloServo; pos -= 1) {
-    mServo.write(pos);
+  for (servoPos = AnguloPadraoServo+AnguloServo; servoPos >= AnguloPadraoServo-AnguloServo; servoPos -= 1) {
+    mServo.write(servoPos);
     delay(10);
   }  
   //Alimenta o pote
@@ -263,8 +269,8 @@ void ExecAlimentar(short tempoLigado){
   lcd_1.print(" Finalizando... ");
   Serial.println("Finalizando...");  
   //Reseta o Servo
-  for (pos = 90-AnguloServo; pos <= 90; pos += 1) {
-    mServo.write(pos);
+  for (servoPos = AnguloPadraoServo-AnguloServo; servoPos <= AnguloPadraoServo; servoPos += 1) {
+    mServo.write(servoPos);
     delay(10);
   }   
   tone(BuzzerPin, BuzzerNote, 250);
