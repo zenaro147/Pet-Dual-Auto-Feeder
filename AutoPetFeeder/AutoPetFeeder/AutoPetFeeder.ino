@@ -1,3 +1,5 @@
+//#define DEBUG_MODE
+
 //Bibliotecas do LCD
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
@@ -168,35 +170,38 @@ void loop(){
   }
   
   if(millis() - millisRTC >= 5*1000 && !CheckProgHorarioAccess && !CheckConfigRelogioAccess){
-    Serial.println("RTC atualizado");
+    
     AtualizaVarsRelogio();
     millisRTC = millis();
-    Serial.println("Status: ");
     
-    Serial.print("Gatilho 1: ");
-    Serial.print(timerJaAcionou[0]);
-    Serial.print(" - ");
-    Serial.print(dadosTimer[0]);
-    Serial.print(":");
-    Serial.println(dadosTimer[1]);
-    
-    Serial.print("Gatilho 2: ");
-    Serial.print(timerJaAcionou[1]);
-    Serial.print(" - ");
-    Serial.print(dadosTimer[2]);
-    Serial.print(":");
-    Serial.println(dadosTimer[3]);
-    
-    Serial.print("Hora Atual: ");
-    Serial.print(dadosRTC[2]);
-    Serial.print("/");
-    Serial.print(dadosRTC[3]);
-    Serial.print("/");
-    Serial.print(dadosRTC[4]);
-    Serial.print(" - ");
-    Serial.print(dadosRTC[0]);
-    Serial.print(":");
-    Serial.println(dadosRTC[1]);
+    #ifdef DEBUG_MODE    
+      Serial.println("Status: ");
+      
+      Serial.print("Gatilho 1: ");
+      Serial.print(timerJaAcionou[0]);
+      Serial.print(" - ");
+      Serial.print(dadosTimer[0]);
+      Serial.print(":");
+      Serial.println(dadosTimer[1]);
+      
+      Serial.print("Gatilho 2: ");
+      Serial.print(timerJaAcionou[1]);
+      Serial.print(" - ");
+      Serial.print(dadosTimer[2]);
+      Serial.print(":");
+      Serial.println(dadosTimer[3]);
+      
+      Serial.print("Hora Atual: ");
+      Serial.print(dadosRTC[2]);
+      Serial.print("/");
+      Serial.print(dadosRTC[3]);
+      Serial.print("/");
+      Serial.print(dadosRTC[4]);
+      Serial.print(" - ");
+      Serial.print(dadosRTC[0]);
+      Serial.print(":");
+      Serial.println(dadosRTC[1]);
+    #endif
 
     //Verifica se já mudou o dia para resetar os acionadores
     short tmpDia = rtc.now().day();
@@ -222,7 +227,6 @@ void loop(){
     timerJaAcionou[1] = true;
     ExecAlimentar(tempoAlimentadorLigado[1]);
   }
-
   
 }
 
