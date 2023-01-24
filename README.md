@@ -1,5 +1,5 @@
-# Pet-Dual-Auto-Feeder
-Alimentador Automático para Pets, com capacidade para despejar em 2 potes.
+# Alimentador Automático para Pets
+Sim, mais um projeto de alimentador automático. Porém o diferencial dele é que é possível alimentar 2 potes com o mesmo alimentador. Muito útil caso tenha 2 bichinhos que comem em potes separados.
 
 ## Componentes:
 * Arduino Mega2560
