@@ -12,7 +12,7 @@ Sim, mais um projeto de alimentador automático. Porém o diferencial dele é qu
 * Buzzer 5v Ativo (opcional)
 * Rele T73 DC-12V 10A (Caso queira colocar uma fonte de energia alternativa)
 
-## Ligação
+## Montagem
 (em breve)
 
 ### To do
