@@ -5,8 +5,8 @@ void ResetaMemoria(){
   for (int i = 0 ; i < EEPROM.length() ; i++) {
     EEPROM.write(i, 0);
   }
-  lcd_1.setCursor(0,1);
-  lcd_1.print("Memoria zerada. ");  
+  lcd.setCursor(0,1);
+  lcd.print("Memoria zerada. ");  
   Serial.println("EEPROM apagada.");
   delay(2000);
   ResetaMenu();
@@ -29,8 +29,8 @@ bool LeMemoria(){
     acionarTimerAlimentador[0] = EEPROM.read(8);
     acionarTimerAlimentador[1] = EEPROM.read(9);
     
-    lcd_1.setCursor(0,1);
-    lcd_1.print("Dados carregados");  
+    lcd.setCursor(0,1);
+    lcd.print("Dados carregados");  
     Serial.println("Dados carregados da EEPROM.");
     delay(2000);
     ResetaMenu();
@@ -58,8 +58,8 @@ void GravaMemoria(){
   EEPROM.write(8, acionarTimerAlimentador[0]);
   EEPROM.write(9, acionarTimerAlimentador[1]);
   
-  lcd_1.setCursor(0,1);
-  lcd_1.print("Dados salvos.   ");  
+  lcd.setCursor(0,1);
+  lcd.print("Dados salvos.   ");  
   Serial.println("Dados salvos da EEPROM.");
   delay(2000);
   ResetaMenu();

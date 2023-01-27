@@ -1,6 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINIÇÃO DE VARIAVEIS E PINOS DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
+#define DEBUG_MODE                //HABILITA OPÇÕES DE DEBUG NO SERIAL PARA MONITORAMENTO
+
 //Botões do menu
 #define BtnMenuEsquerda 32        //Define botão "Esquerda" do Menu
 #define BtnMenuDireita 30         //Define botão "Direita" do Menu
@@ -14,6 +16,8 @@
 
 //Tela LCD
 #define enderecoLCD 0x27          //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
+#define LCDqtdeColunas 16          //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
+#define LCDqtdeLinhas 2          //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
 #define timeoutLCD 10             //Tempo máximo que a tela ficará ligada
 
 //Módulo RTC

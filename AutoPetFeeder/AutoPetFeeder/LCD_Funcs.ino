@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // FUNÇÕES GENÉRICAS DO MENU
 ////////////////////////////////////////////////////////////////////////////////
-void NavegaMenu(String* elementsMenu, short QtdeElementos){     
+void NavegaMenu(const String* elementsMenu, int QtdeElementos){     
   if (digitalRead(BtnMenuDireita) == estadoBotao){
     NavigateMenuIndex++;
   }
@@ -17,21 +17,31 @@ void NavegaMenu(String* elementsMenu, short QtdeElementos){
   }
   
   //Atualiza Texto no LCD
-  lcd_1.setCursor(1,1);
-  lcd_1.print(elementsMenu[NavigateMenuIndex]);
+  lcd.setCursor(1,1);
+  lcd.print(elementsMenu[NavigateMenuIndex]);
 }
 
-void AcessarMenu(bool* menuToAccess, String* elementsMenu){
+void AcessarMenu(bool* menuToAccess, const String* elementsMenu){
   NavigateMenuIndex = 0;
   *menuToAccess = !*menuToAccess;
           
   //Atualiza Texto no LCD
-  lcd_1.setCursor(1,1);
-  lcd_1.print(elementsMenu[0]);
+  lcd.setCursor(1,1);
+  lcd.print(elementsMenu[0]);
 }
 
-void EditaItemMenu(short* selectedVar){
-  short tmpVar = *selectedVar;
+void EditaItemMenu(int* selectedVar){
+  int tmpVar = *selectedVar;
+  if (digitalRead(BtnMenuDireita) == estadoBotao){
+    tmpVar++;
+  }
+  if (digitalRead(BtnMenuEsquerda) == estadoBotao){
+    tmpVar--;
+  }
+  *selectedVar = tmpVar;    
+}
+void EditaItemMenu(volatile uint16_t* selectedVar){
+  int tmpVar = *selectedVar;
   if (digitalRead(BtnMenuDireita) == estadoBotao){
     tmpVar++;
   }
@@ -41,8 +51,18 @@ void EditaItemMenu(short* selectedVar){
   *selectedVar = tmpVar;    
 }
 
-void LimitaVariaveis(short* selectedVar, short limite1, short limite2){
-  short tmpVar = *selectedVar;
+void LimitaVariaveis(int* selectedVar, int limite1, int limite2){
+  int tmpVar = *selectedVar;
+  if(tmpVar < limite1){
+    tmpVar = limite2;
+  }
+  if(tmpVar > limite2){
+    tmpVar = limite1;
+  }
+  *selectedVar=tmpVar;
+}
+void LimitaVariaveis(volatile uint16_t* selectedVar, int limite1, int limite2){
+  int tmpVar = *selectedVar;
   if(tmpVar < limite1){
     tmpVar = limite2;
   }
@@ -52,28 +72,37 @@ void LimitaVariaveis(short* selectedVar, short limite1, short limite2){
   *selectedVar=tmpVar;
 }
 
-void ImprimeVlrVariavel(short* selectedVar){
-  short tmpVar = *selectedVar;
-  lcd_1.setCursor(13,1);
+void ImprimeVlrVariavel(int* selectedVar){
+  int tmpVar = *selectedVar;
+  lcd.setCursor(13,1);
   if(tmpVar < 10){
-    lcd_1.print("0");
-    lcd_1.setCursor(14,1);
+    lcd.print("0");
+    lcd.setCursor(14,1);
   }
-  lcd_1.print(tmpVar);
+  lcd.print(tmpVar);
+}
+void ImprimeVlrVariavel(volatile uint16_t* selectedVar){
+  int tmpVar = *selectedVar;
+  lcd.setCursor(13,1);
+  if(tmpVar < 10){
+    lcd.print("0");
+    lcd.setCursor(14,1);
+  }
+  lcd.print(tmpVar);
 }
 
 void ImprimeSetasMenu(){
-  lcd_1.setCursor(0,1);
-  lcd_1.print("<");
-  lcd_1.setCursor(15,1);
-  lcd_1.print(">");
+  lcd.setCursor(0,1);
+  lcd.print("<");
+  lcd.setCursor(15,1);
+  lcd.print(">");
 }
 
 void ImprimeSinaisMenu(){
-  lcd_1.setCursor(0,1);
-  lcd_1.print("-");
-  lcd_1.setCursor(15,1);
-  lcd_1.print("+");
+  lcd.setCursor(0,1);
+  lcd.print("-");
+  lcd.setCursor(15,1);
+  lcd.print("+");
 }
 
 void ResetaMenu(){
@@ -84,6 +113,6 @@ void ResetaMenu(){
   CheckProgHorarioSet2Access = false;
   CheckAlimentarAgoraAccess = false;
   ImprimeSetasMenu();
-  lcd_1.setCursor(1,1);
-  lcd_1.print(MainMenuOptions[0]);
+  lcd.setCursor(1,1);
+  lcd.print(MainMenuOptions[0]);
 }

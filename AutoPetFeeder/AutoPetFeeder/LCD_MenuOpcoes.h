@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 int NavigateMenuIndex = 0;
 
-String MainMenuOptions[] = { 
+static String MainMenuOptions[] = { 
   "Prog Horario  ",
   "Ligar Agora   ",
   "Reset Config  ",
@@ -12,7 +12,7 @@ String MainMenuOptions[] = {
 };
 
 bool CheckProgHorarioAccess = false;
-String ProgHorarioOptions[] = { 
+static String ProgHorarioOptions[] = { 
   "Config Relogio",
   "Prog Horario 1",
   "Prog Horario 2",
@@ -20,7 +20,7 @@ String ProgHorarioOptions[] = {
 };
 
 bool CheckConfigRelogioAccess = false;
-String ConfigRelogioOptions[] = { 
+static String ConfigRelogioOptions[] = { 
   "Def. Hora     ",
   "Def. Min      ",
   "Def. Dia      ",
@@ -31,7 +31,7 @@ String ConfigRelogioOptions[] = {
 
 bool CheckProgHorarioSet1Access = false;
 bool CheckProgHorarioSet2Access = false;
-String ProgHorarioSetOptions[] = { 
+static String ProgHorarioSetOptions[] = { 
   "Ativar?       ",
   "Tempo(s)      ",
   "Prog Hora     ",
@@ -40,7 +40,7 @@ String ProgHorarioSetOptions[] = {
 };
 
 bool CheckAlimentarAgoraAccess = false;
-String ProgAlimentarAgoraOptions[] = { 
+static String ProgAlimentarAgoraOptions[] = { 
   "Tempo(s)      ",
   "Ligar         ",
   "Voltar        "

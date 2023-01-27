@@ -106,11 +106,11 @@ void ProcessaMenu(){
               //Programa Horario 1              
               AcessarMenu(&CheckProgHorarioSet1Access, ProgHorarioSetOptions);
               NavigateMenuIndex = 0;
-              lcd_1.setCursor(12,1);
+              lcd.setCursor(12,1);
               if(acionarTimerAlimentador[0] == 1){
-                lcd_1.print("Sim");
+                lcd.print("Sim");
               }else{
-                lcd_1.print("Nao");
+                lcd.print("Nao");
               }
                 break;
             case 2:
@@ -118,11 +118,11 @@ void ProcessaMenu(){
               AcessarMenu(&CheckProgHorarioSet2Access, ProgHorarioSetOptions);
               ImprimeVlrVariavel(&dadosRTC[0]); //Imprime variavel do primeiro item do menu
               NavigateMenuIndex = 0;
-              lcd_1.setCursor(12,1);
+              lcd.setCursor(12,1);
               if(acionarTimerAlimentador[1] == 1){
-                lcd_1.print("Sim");
+                lcd.print("Sim");
               }else{
-                lcd_1.print("Nao");
+                lcd.print("Nao");
               }
                 break;
             case 3:
@@ -154,8 +154,8 @@ void ProcessaMenu(){
                 ImprimeVlrVariavel(&dadosRTC[3]);
                 break;
               case 4:
-                lcd_1.setCursor(11,1);
-                lcd_1.print(dadosRTC[4]);
+                lcd.setCursor(11,1);
+                lcd.print(dadosRTC[4]);
                 break;
             }
           }else if (digitalRead(BtnMenuSelect) == estadoBotao){
@@ -172,7 +172,7 @@ void ProcessaMenu(){
                   }
                   break;
               case 5:
-                  rtc.adjust(DateTime(dadosRTC[4], dadosRTC[3], dadosRTC[2], dadosRTC[0], dadosRTC[1], 0));
+                  AjustaRelogio();
                   AcessarMenu(&CheckConfigRelogioAccess, ProgHorarioOptions);
                   break;
               default:
@@ -206,8 +206,8 @@ void ProcessaMenu(){
               case 4: //Define Ano
                 EditaItemMenu(&dadosRTC[4]);              
                 LimitaVariaveis(&dadosRTC[4],2023,2099);
-                lcd_1.setCursor(11,1);
-                lcd_1.print(dadosRTC[4]);
+                lcd.setCursor(11,1);
+                lcd.print(dadosRTC[4]);
               default:
                 break;
             }
@@ -229,11 +229,11 @@ void ProcessaMenu(){
             if(CheckProgHorarioSet1Access){
               switch(NavigateMenuIndex){
                 case 0:
-                  lcd_1.setCursor(12,1);
+                  lcd.setCursor(12,1);
                   if(acionarTimerAlimentador[0] == 1){
-                    lcd_1.print("Sim");
+                    lcd.print("Sim");
                   }else{
-                    lcd_1.print("Nao");
+                    lcd.print("Nao");
                   }
                   break;
                 case 1:
@@ -249,11 +249,11 @@ void ProcessaMenu(){
             }else{
               switch(NavigateMenuIndex){
                 case 0:
-                  lcd_1.setCursor(12,1);
+                  lcd.setCursor(12,1);
                   if(acionarTimerAlimentador[1] == 1){
-                    lcd_1.print("Sim");
+                    lcd.print("Sim");
                   }else{
-                    lcd_1.print("Nao");
+                    lcd.print("Nao");
                   }
                   break;
                 case 1:
@@ -281,12 +281,6 @@ void ProcessaMenu(){
                   }
                   break;
               case 4: 
-                if(dadosTimer[0] > rtc.now().hour() || (dadosTimer[0] >= rtc.now().hour() && dadosTimer[1] > rtc.now().minute())){
-                  timerJaAcionou[0]=false;
-                }
-                if(dadosTimer[2] > rtc.now().hour() || (dadosTimer[2] >= rtc.now().hour() && dadosTimer[3] > rtc.now().minute())){
-                  timerJaAcionou[1]=false;
-                }
                 AcessarMenu(CheckProgHorarioSet1Access == true ? &CheckProgHorarioSet1Access : &CheckProgHorarioSet2Access, ProgHorarioOptions);
               break;
               default:
@@ -301,11 +295,11 @@ void ProcessaMenu(){
               case 0:
                   EditaItemMenu(&acionarTimerAlimentador[0]);
                   LimitaVariaveis(&acionarTimerAlimentador[0],0,1);
-                  lcd_1.setCursor(12,1);
+                  lcd.setCursor(12,1);
                   if(acionarTimerAlimentador[0] == 1){
-                    lcd_1.print("Sim");
+                    lcd.print("Sim");
                   }else{
-                    lcd_1.print("Nao");
+                    lcd.print("Nao");
                   }
               break;
               case 1:
@@ -331,11 +325,11 @@ void ProcessaMenu(){
               case 0:
                   EditaItemMenu(&acionarTimerAlimentador[1]);
                   LimitaVariaveis(&acionarTimerAlimentador[1],0,1);
-                  lcd_1.setCursor(12,1);
+                  lcd.setCursor(12,1);
                   if(acionarTimerAlimentador[1] == 1){
-                    lcd_1.print("Sim");
+                    lcd.print("Sim");
                   }else{
-                    lcd_1.print("Nao");
+                    lcd.print("Nao");
                   }
               break;
               case 1:
