@@ -32,3 +32,4 @@
 *.app
 
 /AutoPetFeeder.OLD/*
+/AutoPetFeeder/AutoPetFeeder.bkp/*
