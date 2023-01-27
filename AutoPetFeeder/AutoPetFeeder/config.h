@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINIÇÃO DE VARIAVEIS E PINOS DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
-#define DEBUG_MODE                //HABILITA OPÇÕES DE DEBUG NO SERIAL PARA MONITORAMENTO
+//#define DEBUG_MODE                //HABILITA OPÇÕES DE DEBUG NO SERIAL PARA MONITORAMENTO
 
 //Botões do menu
 #define BtnMenuEsquerda 32        //Define botão "Esquerda" do Menu
