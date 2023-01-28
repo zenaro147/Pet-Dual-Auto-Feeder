@@ -31,5 +31,7 @@
 *.out
 *.app
 
+*.fzz
+
 /AutoPetFeeder.OLD/*
 /AutoPetFeeder/AutoPetFeeder.bkp/*

@@ -43,7 +43,7 @@ void SincronizaRelogio(){
     AtualizaVarsRelogio();
     
     #ifdef DEBUG_MODE    
-      /*Serial.println("Status: ");
+      Serial.println("Status: ");
       
       char buffHorario[10];
       sprintf(buffHorario, "%2d:%02d", dadosTimer[0],dadosTimer[1]);
@@ -52,7 +52,7 @@ void SincronizaRelogio(){
       
       sprintf(buffHorario, "%2d:%02d", dadosTimer[2],dadosTimer[3]);
       Serial.print("Gatilho 2: ");
-      Serial.println(buffHorario);*/
+      Serial.println(buffHorario);
       
       char buffAgora[20];
       sprintf(buffAgora, "%02d/%02d/%4d - %2d:%02d", dadosRTC[2], dadosRTC[3],dadosRTC[4],dadosRTC[0],dadosRTC[1]);

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // DEFINIÇÃO DE VARIAVEIS E PINOS DO PROGRAMA
 ////////////////////////////////////////////////////////////////////////////////
-//#define DEBUG_MODE                //HABILITA OPÇÕES DE DEBUG NO SERIAL PARA MONITORAMENTO
+//#define DEBUG_MODE              //HABILITA OPÇÕES DE DEBUG NO SERIAL PARA MONITORAMENTO
 
 //Botões do menu
 #define BtnMenuEsquerda 32        //Define botão "Esquerda" do Menu
@@ -10,14 +10,14 @@
 #define estadoBotao LOW           //Define estado que o botão tem que estar para ser reconhecido (Padrão: LOW)
 
 //Servo motor
-#define ServoPin 22
+#define ServoPin 9                //Pino que o Servo Motor está conectado (precisa ser OU pino 9 OU pino 10. Apenas esses funcionam)
 #define AnguloServo 45            //Servo irá virar 45 graus para poder bloquear uma saida e despejar comida em um pote
-#define AnguloPadraoServo 90      //Angulo padrão do Servo quando ele estiver parado
+#define AnguloPadraoServo 90      //Angulo padrão do Servo quando ele estiver parado. Definir angulo entre 40 e 135.
 
 //Tela LCD
 #define enderecoLCD 0x27          //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
-#define LCDqtdeColunas 16          //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
-#define LCDqtdeLinhas 2          //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
+#define LCDqtdeColunas 16         //Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
+#define LCDqtdeLinhas 2           // Pode ser necessário mudar esse valor. Esse link contem um scanner I2C que pode ajudar a localizar o valor do seu LCD 
 #define timeoutLCD 10             //Tempo máximo que a tela ficará ligada
 
 //Módulo RTC

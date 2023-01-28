@@ -124,16 +124,18 @@ void setup(){
   millisRTC = millisLCD;
   Serial.println("Programa iniciado!");
   Serial.println("//////////////////////////////////////////");
+
+  mServo.detach();
   
   //Imprime Data e Hora no display
-  char buffLCD[16];
+  char buffLCD[18] = {0};
   sprintf(buffLCD, "%02d/%02d/%4d %2d:%02d", dadosRTC[2], dadosRTC[3],dadosRTC[4],dadosRTC[0],dadosRTC[1]);
-  lcd.setCursor(0,0);    
+  lcd.setCursor(0,0);
   lcd.print(buffLCD);
 }
 
 void SetupServo(){
-  mServo.attach(ServoPin, 500, 2500);
+  mServo.attach(ServoPin);
   mServo.write(AnguloPadraoServo);
 }
 
@@ -204,37 +206,10 @@ void loop(){
       ExecAlimentar(tempoAlimentadorLigado[1]);
     }
   }
-  
-  // Diagnostics Console
-  while (Serial.available() > 0){
-    switch (Serial.read()){
-      case '1':
-        Serial.println("Teste");
-        break;
-
-      case '2':
-        char buffHorario[10];
-        sprintf(buffHorario, "%2d:%02d", dadosTimer[0],dadosTimer[1]);
-        Serial.print("Gatilho 1: ");
-        Serial.println(buffHorario);
-        
-        sprintf(buffHorario, "%2d:%02d", dadosTimer[2],dadosTimer[3]);
-        Serial.print("Gatilho 2: ");
-        Serial.println(buffHorario);
-        break;
-        
-      case '3':
-        char buffAgora[20];
-        sprintf(buffAgora, "%02d/%02d/%4d - %2d:%02d", dadosRTC[2], dadosRTC[3],dadosRTC[4],dadosRTC[0],dadosRTC[1]);
-        Serial.print("Data/Hora Atual: ");
-        Serial.println(buffAgora);
-        break;
-    }
-  }
 }
 
-void ExecAlimentar(short tempoLigado){ 
-  mServo.write(AnguloPadraoServo); //Reseta Servo
+void ExecAlimentar(short tempoLigado){
+  SetupServo();
   
   lcd.setCursor(0, 1);
   lcd.print("Preparando pote1");
@@ -272,7 +247,10 @@ void ExecAlimentar(short tempoLigado){
   for (servoPos = AnguloPadraoServo-AnguloServo; servoPos <= AnguloPadraoServo; servoPos += 1) {
     mServo.write(servoPos);
     delay(10);
-  }   
+  }
+
+  mServo.detach();
+  
   tone(BuzzerPin, BuzzerNote, 250);
   delay(500);
   tone(BuzzerPin, BuzzerNote, 250);
