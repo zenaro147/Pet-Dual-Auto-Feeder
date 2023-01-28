@@ -1,11 +1,13 @@
 # Alimentador Automático para Pets
 Sim, mais um projeto de alimentador automático. Porém o diferencial dele é que é possível alimentar 2 potes com o mesmo alimentador. Muito útil caso tenha 2 bichinhos que comem em potes separados.
 
+O projeto é alimentado primariamente por uma fonte de energia de 12v e como fonte alternativa,caso ocorra falta de energia, uma segunda fonte de energia entre 9v e 12v.
+
 ## Componentes:
 * Arduino Mega2560
 * Modulo RTC DS1307
 * Servo motor SG90
-* Motor de Passo 28BYJ-48 + driver controle ULN2003 
+* Motor de Passo 28BYJ-48 + driver controle ULN2003 (é possível usar um motor DC juntamente com um Rele, porém é necessário adaptar o código)
 * Display LCD 16x2 I2C
 * 3 botões (push button/chave tactil)
 * Módulo Conversor Step Down 6/24VDC Para 5V 3A
