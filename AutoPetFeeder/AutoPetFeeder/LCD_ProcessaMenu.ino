@@ -280,7 +280,8 @@ void ProcessaMenu(){
                     ImprimeSinaisMenu();
                   }
                   break;
-              case 4: 
+              case 4:
+                ValidaGatilhos();
                 AcessarMenu(CheckProgHorarioSet1Access == true ? &CheckProgHorarioSet1Access : &CheckProgHorarioSet2Access, ProgHorarioOptions);
               break;
               default:

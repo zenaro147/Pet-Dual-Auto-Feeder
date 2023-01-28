@@ -188,11 +188,13 @@ void loop(){
     ProcessaMenu();
     delay(250); 
   }else{
+    //Desliga o LCD após um certo periodo
     if(boolTelaLigada){
-      if((unsigned long)(millis() - millisLCD)/1000 > timeoutLCD){
+      if((unsigned long)(millis() - millisLCD)/1000 >= timeoutLCD){
         lcd.noDisplay();
         lcd.noBacklight();
         boolTelaLigada=false;
+        millisLCD=0;
       }
     }
     
@@ -206,6 +208,45 @@ void loop(){
       ExecAlimentar(tempoAlimentadorLigado[1]);
     }
   }
+
+  // Diagnostics Console
+  while (Serial.available() > 0){
+    switch (Serial.read()){
+      case '1':
+        Serial.print("Gatilho 1: ");
+        Serial.print(acionarTimerAlimentador[0]);
+        Serial.print(" - ");
+        Serial.print(timerJaAcionou[0]);
+        Serial.print("/");
+        Serial.print(dadosTimer[0]);
+        Serial.print(":");
+        Serial.println(dadosTimer[1]);
+        
+        Serial.print("Gatilho 2: ");
+        Serial.print(acionarTimerAlimentador[1]);
+        Serial.print(" - ");
+        Serial.print(timerJaAcionou[1]);
+        Serial.print("/");
+        Serial.print(dadosTimer[2]);
+        Serial.print(":");
+        Serial.println(dadosTimer[3]);
+        break;
+        
+      case '2':
+        Serial.print("Data/Hora Atual: ");
+        Serial.print(dadosRTC[2]);
+        Serial.print("/");
+        Serial.print(dadosRTC[3]);
+        Serial.print("/");
+        Serial.print(dadosRTC[4]);
+        Serial.print(" - ");
+        Serial.print(dadosRTC[0]);
+        Serial.print(":");
+        Serial.println(dadosRTC[1]);
+        break;
+    }
+  }
+  
 }
 
 void ExecAlimentar(short tempoLigado){
