@@ -64,7 +64,7 @@ int tempoAlimentadorLigado[3] = {5,5,5}; //Timer1, Timer2, Manual
 int acionarTimerAlimentador[2] = {0,0}; //Timer1, Timer2
 
 //Hora e Minuto dos timers
-int dadosTimer[] = {0,0,0,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTimer2
+int dadosTimer[] = {0,0,1,0}; //horaTimer1, minutoTimer1, horaTimer2, minutoTimer2
 
 //Variavel que controla se o Timer1 e/ou Timer2 ja foi acionado no dia
 bool timerJaAcionou[2] = {false,false}; //Timer1, Timer2
@@ -154,7 +154,7 @@ void SetupLCD(){
 void SetupRTC(){
   if (!rtc.begin()) {
     Serial.println("Erro ao iniciar relógio!");
-  }else{    
+  }else{   
     AtualizaVarsRelogio();
     Serial.print("Sucesso! Data/Hora Atual: ");      
     char buffLCD[20];
@@ -163,7 +163,7 @@ void SetupRTC(){
   }
   if (!rtc.isrunning()) {
     Serial.println("RTC precisa ser configurado!");
-    rtc.adjust(DateTime(dadosRTC[4], dadosRTC[3], dadosRTC[2], dadosRTC[0], dadosRTC[1], 0));
+    AjustaRelogio();
   }
 }
 
